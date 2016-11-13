@@ -1,0 +1,22 @@
+{
+  "name": "touchpad",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "export BUS=`scripts/get_bus.sh` && scripts/i2c_dev.sh $BUS && (babel-node src/index.js $BUS || true) && scripts/i2c_non_dev.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0",
+    "i2c": "^0.2.3",
+    "i2c-bus": "^1.1.2",
+    "sleep": "^4.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.16.6"
+  }
+}
