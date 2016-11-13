@@ -1,5 +1,9 @@
 ## ASUS ZenBook TouchPads I2C HID Protocol Reverse Engineering
 
+This project is meant to be started on the ASUS Laptop with FTE1001 TouchPad. When launched it unloads TouchPad driver 
+and adds i2c-dev driver instead to communicate with TouchPad in usermode. When it finishes i2c_hid driver loaded again to
+let you use TouchPad again.
+
 ## Getting Started
 
 1. Clone source code locally.
