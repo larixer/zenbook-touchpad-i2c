@@ -2,7 +2,7 @@
 
 while : ; do
 	sudo modprobe i2c_hid;
-	if [ -z "`dmesg | tail -f -n 1 | grep failed`" ]; then
+	if [ -n "`dmesg | tail -f -n 1 | grep Mouse`" ]; then
 		break;
 	else
 		echo "Trying bring TouchPad back again...";
