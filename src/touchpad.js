@@ -2,6 +2,7 @@ import i2c from 'i2c-bus';
 import assert from 'assert';
 import Struct from 'struct';
 import _ from 'lodash';
+import sleep from 'sleep';
 
 const hidDescSchema = {
   wHIDDescLength: 2,
@@ -60,7 +61,7 @@ export default class TouchPad {
   open() {
     this.dev = i2c.openSync(this.bus);
     this.hidDescriptor = this.readHIDDescriptor();
-    console.log('HID Descriptor', dumpHex(this.hidDescriptor.fields));
+    console.log('HID .Descriptor', dumpHex(this.hidDescriptor.fields));
     this.readReportDescriptor();
   }
 
@@ -78,6 +79,17 @@ export default class TouchPad {
     this._writeCmd(getField(this.hidDescriptor, 'wReportDescRegister', 2));
     const rdbuf = new Buffer(this.hidDescriptor.fields.wReportDescLength);
     this._readData(rdbuf);
+  }
+
+  inputLoop() {
+    const rdbuf = new Buffer(10);
+    while (true) {
+      sleep.usleep(10000);
+      // const nr = this.dev.i2cReadSync(this.addr, rdbuf.length, rdbuf);
+      // if (rdbuf[0] !== 0 && nr === rdbuf.length) {
+      //   console.log(nr, rdbuf);
+      // }
+    }
   }
 
   close() {

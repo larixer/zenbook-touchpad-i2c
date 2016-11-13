@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "export BUS=`scripts/get_bus.sh` && scripts/i2c_dev.sh $BUS && (babel-node src/index.js $BUS || true) && scripts/i2c_non_dev.sh",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "scripts/run.sh"
   },
   "author": "",
   "license": "ISC",

@@ -7,6 +7,7 @@ const ADDR = 0x15;
 const touchPad = new TouchPad(BUS, ADDR);
 touchPad.open();
 try {
+  touchPad.inputLoop();
 } finally {
   touchPad.close();
 }
