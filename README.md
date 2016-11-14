@@ -26,7 +26,7 @@ let you use TouchPad again.
   ```
 
 
-If you want to launch the project inside IDE, place the line below at the end of `/etc/sudoers` file:
+If you want to launch the project inside IDE, execute the command below:
 ``` shell
 echo "$USER ALL=(ALL) NOPASSWD: `which rmmod`, `which modprobe`, `which chmod`" | sudo tee -a /etc/sudoers
 ```
