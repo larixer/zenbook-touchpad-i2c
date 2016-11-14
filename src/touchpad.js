@@ -1,8 +1,6 @@
 import i2c from 'i2c-bus';
-import assert from 'assert';
 import Struct from 'struct';
 import _ from 'lodash';
-import sleep from 'sleep';
 
 const hidDescSchema = {
   wHIDDescLength: 2,
@@ -47,14 +45,12 @@ export default class TouchPad {
   }
 
   _writeCmd(wrbuf) {
-    const nrw = this.dev.i2cWriteSync(this.addr, wrbuf.length, wrbuf);
-    assert.equal(nrw, wrbuf.length);
+    this.dev.i2cWriteSync(this.addr, wrbuf.length, wrbuf);
     console.log('write_cmd: ', wrbuf);
   }
 
   _readData(rdbuf) {
-    const nr = this.dev.i2cReadSync(this.addr, rdbuf.length, rdbuf);
-    assert.equal(nr, rdbuf.length);
+    this.dev.i2cReadSync(this.addr, rdbuf.length, rdbuf);
     console.log('read_data: ', rdbuf);
   }
 
@@ -82,13 +78,20 @@ export default class TouchPad {
   }
 
   inputLoop() {
-    const rdbuf = new Buffer(10);
+    const lenbuf = new Buffer(2);
     while (true) {
-      sleep.usleep(10000);
-      // const nr = this.dev.i2cReadSync(this.addr, rdbuf.length, rdbuf);
-      // if (rdbuf[0] !== 0 && nr === rdbuf.length) {
-      //   console.log(nr, rdbuf);
-      // }
+      this.dev.i2cReadSync(this.addr, lenbuf.length, lenbuf);
+      if (lenbuf[0] === 0 && lenbuf[1] !== 0) {
+        this.dev.i2cReadSync(this.addr, 1, lenbuf);
+        const tmp = lenbuf[0];
+        lenbuf[0] = lenbuf[1];
+        lenbuf[1] = tmp;
+      }
+      if (lenbuf[0] !== 0 || lenbuf[1] !== 0) {
+        const rdbuf = new Buffer(lenbuf[1] * 256 + lenbuf[0]);
+        this.dev.i2cReadSync(this.addr, rdbuf.length, rdbuf);
+        console.log("Input Packet:", rdbuf.length, Buffer.concat([lenbuf, rdbuf]));
+      }
     }
   }
 
