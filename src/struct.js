@@ -1,9 +1,9 @@
 import _ from 'lodash';
 
 class Struct {
-  constructor(schema) {
+  constructor(schema, length) {
     this.schema = schema;
-    this.buffer = Buffer.alloc(_.sum(_.values(schema)));
+    this.buffer = Buffer.alloc(length || _.sum(_.values(schema)));
     let offset = 0;
     this.offsets = {};
     for (let key of Object.keys(schema)) {
@@ -14,14 +14,7 @@ class Struct {
 
     _.each(schema, (val, key) => {
       Object.defineProperty(this, key, {
-        get() {
-          let result = 0;
-          const offset = this.offsets[key];
-          for (let i = 0; i < val; i++) {
-            result += Math.pow(256, i) * this.buffer[offset + i];
-          }
-          return result;
-        },
+        get: () => Struct.getInt(this.buffer, this.offsets[key], val),
         set(value) {
           const offset = this.offsets[key];
           for (let i = 0; i < val; i++) {
@@ -39,6 +32,14 @@ class Struct {
         enumerable : true
       });
     });
+  }
+
+  static getInt(buffer, offset, bytes) {
+    let result = 0;
+    for (let i = 0; i < bytes; i++) {
+      result += Math.pow(256, i) * buffer[offset + i];
+    }
+    return result;
   }
 
   toString() {
