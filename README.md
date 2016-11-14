@@ -36,21 +36,23 @@ Please comment out this line, when you don't do the development, because it lowe
 ## Decoded Windows TouchPad driver command sequences
 Based on excellent work of @ain101 [HID Protocol Sniffed]
 
+```
 01 00 - READ HID DESCRIPTOR
 05 00 00 08 - POWER ON
 05 00 00 01 - RESET
 02 00 - READ REPORT DESCRIPTOR
 05 00 3D 03 ... - SET REPORT - Feature Report Type, Report ID: 13 (0xd)
+```
 
 ### ASUS Vendor Specific Command to put this TouchPad into Multi Touch Mode!
-05 00 3D 03 06 00 07 00 0D 00 03 01 00
+`05 00 3D 03 06 00 07 00 0D 00 03 01 00`
 
 ## Protocol specifications
 - [Microsoft HID over I2C]
 - [Microsoft HID for MultiTouch]
 
 ## Data From Device
-
+```
 HID Descriptor:
 wHIDDescLength: '1e',
 bcdVersion: '100',
@@ -66,7 +68,9 @@ wVendorID: 'b05',
 wProductID: '101',
 wVersionID: '7',
 reserved: '0'
+```
 
+```
 Report Descriptor:
 0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 0x09, 0x02,        // Usage (Mouse)
@@ -134,6 +138,7 @@ Report Descriptor:
 0x09, 0x01,        //   Usage (0x01)
 0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0xC0,              // End Collection
+```
 
 ## License
 Copyright © 2016 Victor Vlasenko. This source code is licensed under the [MIT] license.
