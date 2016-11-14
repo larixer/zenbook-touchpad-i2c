@@ -1,5 +1,5 @@
 import i2c from 'i2c-bus';
-import Struct from 'struct';
+import Struct from './struct';
 import _ from 'lodash';
 
 const hidDescSchema = {
@@ -17,23 +17,6 @@ const hidDescSchema = {
   wProductID: 2,
   wVersionID: 2,
   reserved: 4,
-};
-
-const getStruct = schema => {
-  let result = Struct();
-  for (let key of Object.keys(schema)) {
-    const bits = schema[key] * 8;
-    result[`word${bits}Ule`].call(result, key);
-  }
-  return result;
-};
-
-const dumpHex = fields => _.mapValues(fields,
-  (val, key) => fields[key].toString(16));
-
-const getField = (struct, name, bytes) => {
-  const offset = struct.getOffset(name);
-  return struct.buffer().slice(offset, offset + bytes);
 };
 
 const READ_HID_CMD = [0x1, 0x0];
@@ -57,30 +40,32 @@ export default class TouchPad {
   open() {
     this.dev = i2c.openSync(this.bus);
     this.hidDescriptor = this.readHIDDescriptor();
-    console.log('HID .Descriptor', dumpHex(this.hidDescriptor.fields));
+    console.log('HID .Descriptor', this.hidDescriptor.toString());
     this.readReportDescriptor();
   }
 
   readHIDDescriptor() {
     this._writeCmd(new Buffer(READ_HID_CMD));
 
-    const HIDDescriptor = getStruct(hidDescSchema);
-    HIDDescriptor.allocate();
-    this._readData(HIDDescriptor.buffer());
+    const HIDDescriptor = new Struct(hidDescSchema);
+    this._readData(HIDDescriptor.buffer);
 
     return HIDDescriptor;
   }
 
   readReportDescriptor() {
-    this._writeCmd(getField(this.hidDescriptor, 'wReportDescRegister', 2));
-    const rdbuf = new Buffer(this.hidDescriptor.fields.wReportDescLength);
+    this._writeCmd(this.hidDescriptor.fields.wReportDescRegister);
+    const rdbuf = new Buffer(this.hidDescriptor.wReportDescLength);
     this._readData(rdbuf);
   }
 
   inputLoop() {
     const lenbuf = new Buffer(2);
     while (true) {
+      // Because we don't have interrupts for i2c-dev devices, we should poll the device
+      // We detect first non-zero byte and treat it as the start of packet length
       this.dev.i2cReadSync(this.addr, lenbuf.length, lenbuf);
+      // The first byte of length can appear as the second element in buf, so handle this case
       if (lenbuf[0] === 0 && lenbuf[1] !== 0) {
         this.dev.i2cReadSync(this.addr, 1, lenbuf);
         const tmp = lenbuf[0];
